@@ -3,7 +3,6 @@ package main
 import (
 	"errors"
 	"fmt"
-	// "html/template"
 	"net/http"
 	"strconv"
 
@@ -24,33 +23,11 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	for _, snippet := range snippets {
-		fmt.Fprintf(w, "%+v\n", snippet)
-	}
+	data := app.newTemplateData(r)
+	data.Snippets = snippets
 
-
-	// Initialize a slice containing the paths to the two files. It's important
-    // to note that the file containing our base template must be the *first*
-    // file in the slice.
-    // files := []string{
-    //     "./ui/html/base.tmpl",
-	// 	"./ui/html/partials/nav.tmpl",
-    //     "./ui/html/pages/home.tmpl",
-    // }
-
-	// ts, err := template.ParseFiles(files...)
-	// if err != nil {
-	// 	// log.Println(err.Error())
-	// 	app.serverError(w, err) // use the notFound() helper
-	// 	return
-	// }
-
-	// err = ts.ExecuteTemplate(w, "base", nil)
-	// if err != nil {
-	// 	app.serverError(w, err) // use the serverError() helper
-	// }
-
-	// // w.Write([]byte("Hello from Snippet"))
+	// pass the data to the render() helper as normal
+	app.render(w, http.StatusOK, "home.tmpl", data) 
 }
 
 func (app *application) snippetView(w http.ResponseWriter, r *http.Request) {
@@ -69,8 +46,11 @@ func (app *application) snippetView(w http.ResponseWriter, r *http.Request) {
         }
         return
     }
-    // Write the snippet data as a plain-text HTTP response body.
-    fmt.Fprintf(w, "%+v", snippet)
+    // And do the same thing again here...
+    data := app.newTemplateData(r)
+    data.Snippet = snippet
+	
+    app.render(w, http.StatusOK, "view.tmpl", data)
 }
 
 func (app *application) snippetCreate(w http.ResponseWriter, r *http.Request) {
